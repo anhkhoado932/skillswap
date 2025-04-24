@@ -26,12 +26,14 @@ export default function HomePage({ searchParams }: HomePageProps) {
               </div>
               <div className="space-x-4">
                 <Button asChild size="lg">
-                  <Link href="/signup">
+                  <Link href="/sign-up">
                     Get Started <ArrowRight className="ml-2 h-4 w-4" />
                   </Link>
                 </Button>
-                <Button variant="outline" size="lg">
-                  Learn More
+                <Button variant="outline" asChild size="lg">
+                  <Link href="/sign-in">
+                    Sign In
+                  </Link>
                 </Button>
               </div>
             </div>
@@ -123,7 +125,7 @@ export default function HomePage({ searchParams }: HomePageProps) {
               </div>
               <div className="space-x-4">
                 <Button asChild size="lg">
-                  <Link href="/signup">
+                  <Link href="/sign-up">
                     Sign Up Now <ArrowRight className="ml-2 h-4 w-4" />
                   </Link>
                 </Button>
