@@ -6,9 +6,9 @@ import { supabase } from '@/lib/supabase'
 import { Loader2 } from 'lucide-react'
 
 interface Video {
-  name: string
+  id: number
   created_at: string
-  url: string
+  video_url: string
   user_id: string
 }
 
@@ -19,52 +19,17 @@ export default function ExplorePage() {
   useEffect(() => {
     async function fetchAllVideos() {
       try {
-        // List all folders (user IDs)
-        const { data: folders, error: foldersError } = await supabase.storage
-          .from('video')
-          .list()
+        // Fetch all videos from the uploads table
+        const { data: uploads, error: uploadsError } = await supabase
+          .from('uploads')
+          .select('*')
+          .order('created_at', { ascending: false })
 
-        if (foldersError) {
-          throw foldersError
+        if (uploadsError) {
+          throw uploadsError
         }
 
-        // For each folder (user), get their videos
-        const allVideos = await Promise.all(
-          folders.map(async (folder) => {
-            // Get user's videos
-            const { data: files, error: filesError } = await supabase.storage
-              .from('video')
-              .list(folder.name)
-
-            if (filesError) {
-              console.error('Error fetching videos for user:', folder.name, filesError)
-              return []
-            }
-
-            // Get URLs for all videos
-            return Promise.all(
-              (files || []).map(async (file) => {
-                const { data: { publicUrl } } = supabase.storage
-                  .from('video')
-                  .getPublicUrl(`${folder.name}/${file.name}`)
-
-                return {
-                  name: file.name,
-                  created_at: file.created_at,
-                  url: publicUrl,
-                  user_id: folder.name
-                }
-              })
-            )
-          })
-        )
-
-        // Flatten array and sort by date
-        const flattenedVideos = allVideos
-          .flat()
-          .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
-
-        setVideos(flattenedVideos)
+        setVideos(uploads || [])
       } catch (error) {
         console.error('Error fetching videos:', error)
       } finally {
@@ -99,14 +64,14 @@ export default function ExplorePage() {
           <div className="grid gap-4">
             {videos.map((video) => (
               <div
-                key={`${video.user_id}-${video.name}`}
+                key={video.id}
                 className="flex flex-col md:flex-row md:items-center justify-between p-4 border rounded-lg space-y-4 md:space-y-0"
               >
                 <div className="flex flex-col md:flex-row md:items-center gap-4">
                   <div className="w-full md:w-32">
                     <video
                       className="w-full h-48 md:h-24 object-cover rounded"
-                      src={video.url}
+                      src={video.video_url}
                       controls
                     />
                   </div>

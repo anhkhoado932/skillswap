@@ -8,9 +8,9 @@ import { FileUpload } from '@/components/upload/file-upload'
 import { supabase } from '@/lib/supabase'
 
 interface Video {
-  name: string
+  id: number
   created_at: string
-  url: string
+  video_url: string
 }
 
 export default function DashboardPage() {
@@ -30,33 +30,18 @@ export default function DashboardPage() {
       try {
         if (!user) return
 
-        // List all files in the user's folder
-        const { data, error } = await supabase.storage
-          .from('video')
-          .list(user.id)
+        // Fetch videos from the uploads table for the current user
+        const { data, error } = await supabase
+          .from('uploads')
+          .select('*')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false })
 
         if (error) {
           throw error
         }
 
-        // Get URLs for all videos
-        const videosWithUrls = await Promise.all(
-          (data || []).map(async (file) => {
-            const { data: { publicUrl } } = supabase.storage
-              .from('video')
-              .getPublicUrl(`${user.id}/${file.name}`)
-
-            return {
-              name: file.name,
-              created_at: file.created_at,
-              url: publicUrl,
-            }
-          })
-        )
-
-        setVideos(videosWithUrls.sort((a, b) => 
-          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-        ))
+        setVideos(data || [])
       } catch (error) {
         console.error('Error fetching videos:', error)
       } finally {
@@ -107,14 +92,14 @@ export default function DashboardPage() {
             <div className="grid gap-4">
               {videos.map((video) => (
                 <div
-                  key={video.name}
+                  key={video.id}
                   className="flex flex-col md:flex-row md:items-center justify-between p-4 border rounded-lg space-y-4 md:space-y-0"
                 >
                   <div className="flex flex-col md:flex-row md:items-center gap-4">
                     <div className="w-full md:w-32">
                       <video
                         className="w-full h-48 md:h-24 object-cover rounded"
-                        src={video.url}
+                        src={video.video_url}
                         controls
                       />
                     </div>

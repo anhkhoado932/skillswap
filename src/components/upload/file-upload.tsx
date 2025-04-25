@@ -20,15 +20,34 @@ export function FileUpload() {
       setUploading(true)
       setError(null)
 
-      // Upload file to Supabase Storage
+      // Upload file to Supabase Storage with a unique name
       const fileExt = file.name.split('.').pop()
       const fileName = `${Math.random()}.${fileExt}`
       const { data: uploadData, error: uploadError } = await supabase.storage
         .from('video')
-        .upload(`${user?.id}/${fileName}`, file)
+        .upload(fileName, file)
 
       if (uploadError) {
         throw uploadError
+      }
+
+      // Get the public URL for the uploaded video
+      const { data: { publicUrl } } = supabase.storage
+        .from('video')
+        .getPublicUrl(fileName)
+
+      // Store video metadata in the uploads table
+      const { error: dbError } = await supabase
+        .from('uploads')
+        .insert({
+          user_id: user?.id,
+          video_url: publicUrl,
+        })
+
+      if (dbError) {
+        // If database insert fails, delete the uploaded file
+        await supabase.storage.from('video').remove([fileName])
+        throw dbError
       }
 
       // Reset file input
