@@ -10,6 +10,7 @@ interface Video {
   created_at: string
   video_url: string
   user_id: string
+  username: string | null
 }
 
 export default function ExplorePage() {
@@ -19,7 +20,7 @@ export default function ExplorePage() {
   useEffect(() => {
     async function fetchAllVideos() {
       try {
-        // Fetch all videos from the uploads table
+        // First fetch videos
         const { data: uploads, error: uploadsError } = await supabase
           .from('uploads')
           .select('*')
@@ -29,7 +30,23 @@ export default function ExplorePage() {
           throw uploadsError
         }
 
-        setVideos(uploads || [])
+        // Then fetch usernames for each video
+        const videosWithUsernames = await Promise.all(
+          (uploads || []).map(async (video) => {
+            const { data: userData } = await supabase
+              .from('auth.users')
+              .select('username')
+              .eq('id', video.user_id)
+              .single()
+
+            return {
+              ...video,
+              username: userData?.username || null
+            }
+          })
+        )
+
+        setVideos(videosWithUsernames)
       } catch (error) {
         console.error('Error fetching videos:', error)
       } finally {
@@ -77,7 +94,7 @@ export default function ExplorePage() {
                   </div>
                   <div className="space-y-1">
                     <p className="font-medium">
-                      Uploaded by user {video.user_id}
+                      Uploaded by {video.username || 'Anonymous'}
                     </p>
                     <p className="text-sm text-muted-foreground">
                       {new Date(video.created_at).toLocaleDateString()}
