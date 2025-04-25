@@ -59,58 +59,77 @@ export default function ExplorePage() {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="flex items-center gap-2">
-          <Loader2 className="h-6 w-6 animate-spin" />
-          <p>Loading videos...</p>
+      <div className="min-h-screen flex items-center justify-center py-8 md:py-12">
+        <div className="container max-w-6xl">
+          <Card className="mb-8">
+            <CardHeader className="text-center">
+              <CardTitle className="text-2xl md:text-3xl">Explore Videos</CardTitle>
+              <CardDescription className="text-lg">
+                Discover videos from all users
+              </CardDescription>
+            </CardHeader>
+          </Card>
+
+          <div className="flex items-center gap-2">
+            <Loader2 className="h-6 w-6 animate-spin" />
+            <p>Loading videos...</p>
+          </div>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="container py-4 md:py-8">
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg md:text-xl">All Videos</CardTitle>
-          <CardDescription>
-            Discover videos from all users
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid gap-4">
-            {videos.map((video) => (
-              <div
-                key={video.id}
-                className="flex flex-col md:flex-row md:items-center justify-between p-4 border rounded-lg space-y-4 md:space-y-0"
-              >
-                <div className="flex flex-col md:flex-row md:items-center gap-4">
-                  <div className="w-full md:w-32">
-                    <video
-                      className="w-full h-48 md:h-24 object-cover rounded"
-                      src={video.video_url}
-                      controls
-                    />
-                  </div>
-                  <div className="space-y-1">
-                    <p className="font-medium">
-                      Uploaded by {video.username || 'Anonymous'}
-                    </p>
-                    <p className="text-sm text-muted-foreground">
-                      {new Date(video.created_at).toLocaleDateString()}
-                    </p>
+    <div className="min-h-screen flex items-center justify-center py-8 md:py-12">
+      <div className="container max-w-6xl">
+        <Card className="mb-8">
+          <CardHeader className="text-center">
+            <CardTitle className="text-2xl md:text-3xl">Explore Videos</CardTitle>
+            <CardDescription className="text-lg">
+              Discover videos from all users
+            </CardDescription>
+          </CardHeader>
+        </Card>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {videos.map((video) => (
+            <Card key={video.id} className="overflow-hidden">
+              <div className="aspect-video">
+                <video
+                  className="w-full h-full object-cover"
+                  src={video.video_url}
+                  controls
+                />
+              </div>
+              <CardContent className="p-4">
+                <div className="space-y-2">
+                  <div className="flex items-center space-x-2">
+                    <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
+                      {video.username ? video.username[0].toUpperCase() : 'A'}
+                    </div>
+                    <div>
+                      <p className="font-medium">
+                        {video.username || 'Anonymous'}
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        {new Date(video.created_at).toLocaleDateString()}
+                      </p>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
-            {!loading && videos.length === 0 && (
-              <p className="text-center text-muted-foreground py-8">
-                No videos have been uploaded yet
-              </p>
-            )}
-          </div>
-        </CardContent>
-      </Card>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+        
+        {!loading && videos.length === 0 && (
+          <Card className="p-8">
+            <p className="text-center text-muted-foreground">
+              No videos have been uploaded yet
+            </p>
+          </Card>
+        )}
+      </div>
     </div>
   )
 } 

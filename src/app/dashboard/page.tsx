@@ -80,7 +80,7 @@ export default function DashboardPage() {
         </Card>
 
         <Card>
-          <CardHeader>
+          <CardHeader className="text-center">
             <CardTitle className="text-lg md:text-xl">Your Videos</CardTitle>
             <CardDescription>
               {loadingVideos
@@ -89,27 +89,24 @@ export default function DashboardPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="grid gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {videos.map((video) => (
-                <div
-                  key={video.id}
-                  className="flex flex-col md:flex-row md:items-center justify-between p-4 border rounded-lg space-y-4 md:space-y-0"
-                >
-                  <div className="flex flex-col md:flex-row md:items-center gap-4">
-                    <div className="w-full md:w-32">
-                      <video
-                        className="w-full h-48 md:h-24 object-cover rounded"
-                        src={video.video_url}
-                        controls
-                      />
-                    </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground mt-2 md:mt-0">
+                <Card key={video.id} className="overflow-hidden">
+                  <div className="aspect-video">
+                    <video
+                      className="w-full h-full object-cover"
+                      src={video.video_url}
+                      controls
+                    />
+                  </div>
+                  <CardContent className="p-4">
+                    <div className="space-y-2">
+                      <p className="text-sm text-muted-foreground">
                         Uploaded on {new Date(video.created_at).toLocaleDateString()}
                       </p>
                     </div>
-                  </div>
-                </div>
+                  </CardContent>
+                </Card>
               ))}
               {!loadingVideos && videos.length === 0 && (
                 <p className="text-center text-muted-foreground py-8">
